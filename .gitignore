@@ -2,3 +2,5 @@ toml
 src/*.egg-info
 build
 map
+reports
+package.json

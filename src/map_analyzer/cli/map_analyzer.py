@@ -1,7 +1,7 @@
 import getopt
 import sys
 
-from ..parser import GhsMapParser, ConfigParser
+from ..parser import GhsMapParser, ConfigParser, GccMapParser
 from ..reporter import ExcelReporter
 
 def _usage(error: str):
@@ -51,6 +51,8 @@ def main():
 
         if (config.compiler == "ghs"):
             map = GhsMapParser()
+        elif (config.compiler == "gcc"):
+            map = GccMapParser()
         else:
             raise ValueError("Invalid compiler <%s> is not supported." % config.compiler)
 
@@ -74,14 +76,20 @@ def main():
         if (len(config.file_properties) > 0):
             map.patch_file_property(config.file_properties)
 
+        if (len(config.section_types) > 0):
+            map.patch_section_type(config.section_types)
+
         map.analyze_core_data()
 
         if (excel_name == ""):
-            map.display_groups()
+            #map.display_groups()
+            map.display()
         else:
             reporter = ExcelReporter()
             reporter.write_detail(map.items)
-            reporter.write_summary(map.cores)
+            reporter.write_component_summary(map.cores)
+            if (len(map.sections) > 0):
+                reporter.write_section(map.sections)
             reporter.save(excel_name)
 
     except Exception as e:

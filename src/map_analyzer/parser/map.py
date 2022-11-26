@@ -1,20 +1,21 @@
 from abc import ABCMeta
 from typing import Dict, List
-from ..models import DetailItem, DetailGroup, FileProperty, CoreGroup
+from ..models import DetailItem, DetailGroup, FileProperty, CoreGroup, Section
 
 import re
 
 class MapParser(metaclass=ABCMeta):
     def __init__(self) -> None:
-        self.lines = []
-        self.items = []    # type: List[DetailItem]
-        self.cores = {}    # type: Dict[str, DetailGroup]
+        self.lines      = []
+        self.items      = []     # type: List[DetailItem]
+        self.sections   = []     # type: List[Section]   
+        self.cores      = {}     # type: Dict[str, DetailGroup]
 
     def parse(self, file_name, parameters: Dict[str, str]) -> None:
         pass
 
     def display_items(self):
-        for value in self.items.values():
+        for value in self.items():
             print(value)
 
     def display_lines(self):
@@ -27,7 +28,7 @@ class MapParser(metaclass=ABCMeta):
 
     def display(self) -> None:
         self.display_lines()
-        self.display_items()
+        #self.display_items()
 
     def patch_value_with_regex(self, value):
         m = re.match("\$(\d)", value)
@@ -42,6 +43,19 @@ class MapParser(metaclass=ABCMeta):
         for item in self.items:
             if item.key in file_properties:
                 item.group = file_properties[item.key].group
+
+    def patch_section_type(self, section_types: Dict[str, str]):
+        print("Patch section type")
+
+        for section in self.sections:
+            for regex in section_types:
+                m = re.match(regex, section.name, re.IGNORECASE)
+                if (m):
+                    (type, value) = self.patch_value_with_regex(section_types[regex])
+                    if (type == "int"):
+                        section.type = m.group(value)
+                    else:
+                        section.type = value
 
     def patch_type(self, type_regexes: Dict[str, str]):
         print("Patch type")
@@ -96,7 +110,8 @@ class MapParser(metaclass=ABCMeta):
         
         for item in self.items:
             if item.group in mapping:
-                item.core = mapping[item.group]
+                if (item.core == ""):
+                    item.core = mapping[item.group]
 
     def get_core_instance(self, core_name):
         if (core_name == ""):

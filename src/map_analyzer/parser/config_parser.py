@@ -2,17 +2,23 @@ from typing import Dict, List
 from ..models import FileProperty
 
 import toml
+import re
 
 class ConfigParser:
     def __init__(self) -> None:
         self.compiler = ""
-        self.parameters = {}            # type: Dict(str, str)
-        self.file_properties = {}       # type: Dict(str, FileProperty)
-        self.type_regexes = {}          # type: Dict(str, str)
-        self.group_regexes = {}         # type: Dict(str, str)
-        self.core_regexes = {}          # type: List(str, str)
-        self.group_core_mapping = {}    # type: Dict(str, str)
-        self.group_formats = {}         # type: Dict(str, str)
+        self.parameters = {}                    # type: Dict(str, str)
+        self.file_properties = {}               # type: Dict(str, FileProperty)
+        self.type_regexes = {}                  # type: Dict(str, str)
+        self.group_regexes = {}                 # type: Dict(str, str)
+        self.core_regexes = {}                  # type: Dict(str, str)
+        self.group_core_mapping = {}            # type: Dict(str, str)
+        self.group_formats = {}                 # type: Dict(str, str)
+        self.section_types = {}                 # type: List(str, str)
+
+        self.parameters['image']      = {}
+        self.parameters['image']['start_addr'] = 0x00000000
+        self.parameters['image']['end_addr']   = 0xFFFFFFFF
 
     def _parse_general(self, data):
         if ('compiler' in data['general']):
@@ -52,6 +58,18 @@ class ConfigParser:
         for key in data:
             self.group_core_mapping[key] = data[key]
 
+    #def _parse_number(self, data: str):
+    #    m = re.match(r"0x([0-9a-f]+)", data, re.I)
+    #    if (m):
+    #        return int(m.group(1), base=16)
+    #    return int(data)
+
+    def _parse_image_size(self, data):
+        if 'start_addr' in data:
+            self.parameters['image']['start_addr'] = data['start_addr']
+        if 'end_addr' in data:
+            self.parameters['image']['end_addr'] = data['end_addr']
+
     def parse(self, name):
         data = toml.load(name)
 
@@ -80,3 +98,10 @@ class ConfigParser:
                 self._parse_core_regex(data['core']['regex'])
             if ('group' in data['core']):
                 self._parse_group_core_mapping(data['core']['group'])
+
+        if ('section' in data):
+            if ('type' in data['section']):
+                self.section_types = data['section']['type']
+
+        if ('image' in data):
+            self._parse_image_size(data['image'])

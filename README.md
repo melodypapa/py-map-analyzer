@@ -21,7 +21,11 @@ Run `pytest --cov=py_tresos --cov-report term-missing` to verify all the functio
 ## 1.2. CLI
 
 ```
-map-analyzer -c toml/ghs.toml -m map/ghs/ghs.map --excel ghs.xlsx
+map-analyzer -c toml/meths.toml -m map/ghs/ghs.map --excel ghs.xlsx
+```
+
+```
+map-analyzer -c toml/propa.toml -m map/ghs/propa.map --excel propa.xlsx
 ```
 
 ## 1.3. Change notes
@@ -31,3 +35,11 @@ map-analyzer -c toml/ghs.toml -m map/ghs/ghs.map --excel ghs.xlsx
 1. Parse the green-hill map format.
 2. Collect the .a file as the module.
 3. Export the report into xlsx file.
+
+
+**0.1.1**
+
+1. Add the supporting of NXP G32G GCC map format.
+2. Read the memory section in the GHS map format.
+3. Add the ROM/RAM/Calibration attribute for the memory section.
+4. Output the memory section in the excel file.

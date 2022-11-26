@@ -25,3 +25,15 @@ class DetailGroup:
     @property
     def files(self) -> str:
         return "\n".join(self.items)
+
+    @property
+    def total_ram(self)-> int:
+        return self.bss_total + self.data_total
+
+    @property
+    def total_rom(self) -> int:
+        return self.text_total + self.rodata_total
+
+    @property
+    def total(self) -> int:
+        return self.total_ram + self.total_rom + self.calib_total

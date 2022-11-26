@@ -7,12 +7,12 @@ with open("README.md", "r") as fh:
 
 setup(
     name ='map_analyzer',
-    version = '0.1.0',
-    description="A Python tool for GHS map analysis ",
+    version = '0.1.1',
+    description="A Python tool for GHS map analysis",
 
     author = 'Melodypapa',
     author_email = "melodypapa@outlook.com",
-    url="",
+    url="https://github.com/melodypapa/py-map-analyzer",
 
     long_description=long_description,
     long_description_content_type="text/markdown",

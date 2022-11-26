@@ -1,7 +1,7 @@
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from typing import List, Dict
-from ..models import DetailItem, CoreGroup
+from ..models import DetailItem, CoreGroup, Section
 
 
 class ExcelReporter:
@@ -42,10 +42,10 @@ class ExcelReporter:
 
         self.auto_width(sheet)
 
-    def write_summary(self, cores: Dict[str, CoreGroup]):
+    def write_component_summary(self, cores: Dict[str, CoreGroup]):
         sheet = self.wb.create_sheet("Summary", 1)
 
-        title_row = ["Core", "Name", "Files", "text", "rodata", "bss", "data", "calibration"]
+        title_row = ["Core", "Name", "Files", "text", "rodata", "data", "bss", "shared", "calibration", "ROM", "RAM", "Total"]
         self.write_title_row(sheet, title_row)
 
         row = 2
@@ -57,12 +57,36 @@ class ExcelReporter:
                 #self.write_cell(sheet, row, 2, group.files, Alignment(wrap_text=True, shrink_to_fit=True))
                 self.write_cell(sheet, row, 4, group.text_total)
                 self.write_cell(sheet, row, 5, group.rodata_total)
-                self.write_cell(sheet, row, 6, group.bss_total)
-                self.write_cell(sheet, row, 7, group.data_total)
-                self.write_cell(sheet, row, 8, group.calib_total)
+                self.write_cell(sheet, row, 6, group.data_total)
+                self.write_cell(sheet, row, 7, group.bss_total)
+                self.write_cell(sheet, row, 8, 0)
+                self.write_cell(sheet, row, 9, group.calib_total)
+                self.write_cell(sheet, row, 10, group.total_rom)
+                self.write_cell(sheet, row, 11, group.total_ram)
+                self.write_cell(sheet, row, 12, group.total)
                 row += 1
 
         self.auto_width(sheet)
+
+    def write_section(self, sections: List[Section]):
+        sheet = self.wb.create_sheet("Section", 2)
+
+        title_row = ["Name", "address", "offset", "size", "type"]
+        self.write_title_row(sheet, title_row)
+
+        row = 2
+        for section in sections:
+            self.write_cell(sheet, row, 1, section.name)
+            self.write_cell(sheet, row, 2, "%x" % section.base_addr)
+            self.write_cell(sheet, row, 3, "%x" % section.offset)
+            self.write_cell(sheet, row, 4, section.size)
+            self.write_cell(sheet, row, 5, section.type)
+            row += 1
+
+        self.auto_width(sheet)
+
+    def write_core_summary(self):
+        pass
 
     def save(self, name: str):
         self.wb.save(name)
