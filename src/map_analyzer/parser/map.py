@@ -3,6 +3,7 @@ from typing import Dict, List
 from ..models import DetailItem, DetailGroup, FileProperty, CoreGroup, Section
 
 import re
+import logging
 
 class MapParser(metaclass=ABCMeta):
     def __init__(self) -> None:
@@ -56,6 +57,7 @@ class MapParser(metaclass=ABCMeta):
                         section.type = m.group(value)
                     else:
                         section.type = value
+                    logging.debug("%s => %s" % (section.name, section.type))
 
     def patch_type(self, type_regexes: Dict[str, str]):
         print("Patch type")
@@ -125,7 +127,7 @@ class MapParser(metaclass=ABCMeta):
 
     def get_group_instance(self, core: CoreGroup, group_name):
         if (group_name == ""):
-            group_name = "misc"
+            group_name = "EB_Intgr"
 
         if group_name not in core.groups:
             group = DetailGroup()
@@ -142,11 +144,11 @@ class MapParser(metaclass=ABCMeta):
 
             group.items.add(item.name)
 
-            if item.type == "text" or item.type == ".mk_text":
+            if item.type in ("text", ".mk_text"):
                 group.text_total += item.size
             elif item.type == "bss":
                 group.bss_total += item.size
-            elif item.type == "rodata" or item.type == ".mk_exceptiontable":
+            elif item.type in ("rodata", ".mk_exceptiontable"):
                 group.rodata_total += item.size
             elif item.type == "data":
                 group.data_total += item.size
@@ -154,6 +156,14 @@ class MapParser(metaclass=ABCMeta):
                 group.calib_total += item.size
             elif item.type == ".mk_corelocaldata":
                 pass
+            elif re.match(r"\.const(?:_asil_\w)?(?:_(?:8|16|32|unspecified))?", item.type):
+                group.rodata_total += item.size
+            elif re.match(r"\.code(?:_asil_\w)?", item.type):
+                group.text_total += item.size
+            elif re.match(r"\.var_cleared(?:_asil_\w)?(?:_(?:8|16|32|unspecified))?", item.type):
+                group.bss_total += item.size
+            elif re.match(r"\.var_init(?:_asil_\w)?(?:_(?:8|16|32|unspecified))?", item.type):
+                group.data_total += item.size
             else:
                 raise ValueError("Invalid type <%s> is not supported" % item.type)
         

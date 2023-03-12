@@ -3,6 +3,7 @@ from ..models import DetailItem, Section
 from typing import Dict
 
 import re
+import logging
 
 class GhsMapParser(MapParser):
     def __init__(self) -> None:
@@ -22,7 +23,7 @@ class GhsMapParser(MapParser):
                 self.items.append(item)
 
     def _parse_section(self, line, params):
-        m = re.match(r'\s+([.a-z_][a-z_\d]+)\s+([0-9a-f]+)\s+([0-9a-f]+)\s+([0-9]+)\s+([0-9a-f]+)', line, re.I)
+        m = re.match(r'\s+([.a-z_][0-9a-z_.]+)\s+([0-9a-f]+)\s+([0-9a-f]+)\s+([0-9]+)\s+([0-9a-f]+)', line, re.I)
         if (m):
             item = Section()
             item.name = m.group(1)
@@ -36,6 +37,7 @@ class GhsMapParser(MapParser):
             if (item.base_addr < params['image']['start_addr'] or item.base_addr > params['image']['end_addr']):
                 return
             
+            logging.debug("Add Section <%s>" % item.name)
             self.sections.append(item)
 
     def _parse_calibration_item(self, line, regex):
@@ -62,7 +64,7 @@ class GhsMapParser(MapParser):
                     self._parse_item(line)
                     continue
 
-                m = re.match(r'\s+([.a-z_][a-z_\d]+)\s+([0-9a-f]+)\s+([0-9a-f]+)\s+([0-9]+)\s+([0-9a-f]+)', line, re.I)
+                m = re.match(r'\s+([.a-z_][0-9a-z_.]+)\s+([0-9a-f]+)\s+([0-9a-f]+)\s+([0-9]+)\s+([0-9a-f]+)', line, re.I)
                 if (m):
                     self._parse_section(line, params)
                     continue

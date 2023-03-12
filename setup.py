@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name ='map_analyzer',
-    version = '0.1.1',
+    version = '0.2.1',
     description="A Python tool for GHS map analysis",
 
     author = 'Melodypapa',

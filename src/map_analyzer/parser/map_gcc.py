@@ -9,7 +9,7 @@ class GccMapParser(MapParser):
         super().__init__()
 
     def _parse_item(self, line) -> None:
-        m = re.match(r'\s+([\w\.]+)\s+0x([\w\d]+)\s+0x([\w\d]+)\s+([\w\d\/]+)\.o', line)
+        m = re.match(r'\s+([\w\.]+)\s+0x([\w\d]+)\s+0x([\w\d]+)\s+([\w\d\/\.\:@]+)\.o', line)
         if (m):
             item = DetailItem()
             item.long_name  = m.group(4)
@@ -38,7 +38,7 @@ class GccMapParser(MapParser):
 
         with open(file_name) as f_in:
              for line in f_in:
-                m = re.match(r'\s+([\w\.]+)\s+0x([\w\d]+)\s+0x([\w\d]+)\s+([\w\d\/]+)\.o', line, re.IGNORECASE)
+                m = re.match(r'\s+([\w\.]+)\s+0x([\w\d]+)\s+0x([\w\d]+)\s+([\w\d\/\.\:@]+)\.o', line, re.IGNORECASE)
                 if (m):
                     if (m.group(1) == ".debug_frame" or m.group(1) == ".comment" or m.group(1) == ".debug_line" 
                         or m.group(1) == ".debug_info" or m.group(1) == ".debug_loc" or m.group(1) == ".group" 

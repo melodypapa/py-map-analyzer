@@ -4,6 +4,8 @@ import sys
 from ..parser import GhsMapParser, ConfigParser, GccMapParser
 from ..reporter import ExcelReporter
 
+import logging
+
 def _usage(error: str):
     if error != "":
         print(error)
@@ -22,6 +24,8 @@ def main():
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
         _usage("")
+
+    logging.basicConfig(format='[%(levelname)s] : %(message)s', level = logging.DEBUG)
 
     cfg_name = ""
     map_name = ""
@@ -64,6 +68,9 @@ def main():
         if (len(config.group_regexes) > 0):
             map.patch_group(config.group_regexes)
 
+        if (len(config.file_properties) > 0):
+            map.patch_file_property(config.file_properties)
+
         if (len(config.group_formats) > 0):
             map.format_group_name(config.group_formats)
 
@@ -72,9 +79,6 @@ def main():
 
         if (len(config.core_regexes) > 0):
             map.patch_core(config.core_regexes)
-
-        if (len(config.file_properties) > 0):
-            map.patch_file_property(config.file_properties)
 
         if (len(config.section_types) > 0):
             map.patch_section_type(config.section_types)
@@ -86,10 +90,11 @@ def main():
             map.display()
         else:
             reporter = ExcelReporter()
-            reporter.write_detail(map.items)
             reporter.write_component_summary(map.cores)
+            reporter.write_detail(map.items)
             if (len(map.sections) > 0):
                 reporter.write_section(map.sections)
+            reporter.write_section_summary(map.sections, config.section_sizes)
             reporter.save(excel_name)
 
     except Exception as e:

@@ -43,3 +43,8 @@ map-analyzer -c toml/propa.toml -m map/ghs/propa.map --excel propa.xlsx
 2. Read the memory section in the GHS map format.
 3. Add the ROM/RAM/Calibration attribute for the memory section.
 4. Output the memory section in the excel file.
+
+**0.2.1**
+
+1. Add the section report.
+2. Add the section summary.

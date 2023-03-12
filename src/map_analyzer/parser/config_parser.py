@@ -14,7 +14,8 @@ class ConfigParser:
         self.core_regexes = {}                  # type: Dict(str, str)
         self.group_core_mapping = {}            # type: Dict(str, str)
         self.group_formats = {}                 # type: Dict(str, str)
-        self.section_types = {}                 # type: List(str, str)
+        self.section_types = {}                 # type: Dict(str, str)
+        self.section_sizes = {}                 # type: Dict(str, int)
 
         self.parameters['image']      = {}
         self.parameters['image']['start_addr'] = 0x00000000
@@ -70,6 +71,25 @@ class ConfigParser:
         if 'end_addr' in data:
             self.parameters['image']['end_addr'] = data['end_addr']
 
+    def _parse_section_size(self, data):
+        for key in data:
+            value = data[key]
+            m = re.match(r'(\d+)(K|M)?', value)
+            if m:
+                if (m.group(2) == None):
+                    type = ""
+                else:
+                    type = m.group(2).upper()
+                    
+                if type == "K":
+                    self.section_sizes[key] = int(m.group(1)) * 1024
+                elif type == "M":
+                    self.section_sizes[key] = int(m.group(1)) * 1024 * 1024
+                else:
+                    self.section_sizes[key] = int(m.group(1))
+            else:
+                raise ValueError("Invalid section size <%s>" % value)
+
     def parse(self, name):
         data = toml.load(name)
 
@@ -102,6 +122,8 @@ class ConfigParser:
         if ('section' in data):
             if ('type' in data['section']):
                 self.section_types = data['section']['type']
+            if ('size' in data['section']):
+                self._parse_section_size(data['section']['size'])
 
         if ('image' in data):
             self._parse_image_size(data['image'])
